@@ -8,9 +8,16 @@
 #include "bthome_packet.h"
 
 static const struct gpio_dt_spec button = GPIO_DT_SPEC_GET(DT_ALIAS(sw0), gpios);
-static const struct gpio_dt_spec red = GPIO_DT_SPEC_GET(DT_ALIAS(led0), gpios);
-static const struct gpio_dt_spec green = GPIO_DT_SPEC_GET(DT_ALIAS(led1), gpios);
-static const struct gpio_dt_spec blue = GPIO_DT_SPEC_GET(DT_ALIAS(led2), gpios);
+#if LED_COLOR == LED_COLOR_RED
+#define STATUS_LED_ALIAS led0
+#elif LED_COLOR == LED_COLOR_GREEN
+#define STATUS_LED_ALIAS led1
+#elif LED_COLOR == LED_COLOR_BLUE
+#define STATUS_LED_ALIAS led2
+#else
+#error "LED_COLOR must be LED_COLOR_RED, LED_COLOR_GREEN or LED_COLOR_BLUE"
+#endif
+static const struct gpio_dt_spec status_led = GPIO_DT_SPEC_GET(DT_ALIAS(STATUS_LED_ALIAS), gpios);
 static struct gpio_callback button_callback;
 static struct k_work_delayable debounce_work;
 struct button_edge {
@@ -63,12 +70,11 @@ static void fatal(int error)
 {
 	diagnostics.error = error;
 	(void)bt_le_adv_stop();
-	(void)gpio_pin_set_dt(&green, 0);
-	(void)gpio_pin_set_dt(&blue, 0);
+	(void)gpio_pin_set_dt(&status_led, 0);
 	for (;;) {
-		(void)gpio_pin_set_dt(&red, 1);
+		(void)gpio_pin_set_dt(&status_led, 1);
 		k_sleep(K_MSEC(20));
-		(void)gpio_pin_set_dt(&red, 0);
+		(void)gpio_pin_set_dt(&status_led, 0);
 		k_sleep(K_SECONDS(5));
 	}
 }
@@ -128,14 +134,11 @@ static void button_changed(const struct device *port, struct gpio_callback *cb, 
 
 int main(void)
 {
-	const struct gpio_dt_spec *leds[] = {&red, &green, &blue};
 	int err;
 	if (!gpio_is_ready_dt(&button)) { fatal(-ENODEV); }
-	for (size_t i = 0; i < ARRAY_SIZE(leds); ++i) {
-		if (!gpio_is_ready_dt(leds[i])) { fatal(-ENODEV); }
-		err = gpio_pin_configure_dt(leds[i], GPIO_OUTPUT_INACTIVE);
-		if (err) { fatal(err); }
-	}
+	if (!gpio_is_ready_dt(&status_led)) { fatal(-ENODEV); }
+	err = gpio_pin_configure_dt(&status_led, GPIO_OUTPUT_INACTIVE);
+	if (err) { fatal(err); }
 	err = gpio_pin_configure_dt(&button, GPIO_INPUT);
 	if (err) { fatal(err); }
 	k_work_init_delayable(&debounce_work, debounce);
@@ -158,13 +161,12 @@ int main(void)
 	int64_t replace_at = 0; /* Startup discovery may be replaced immediately. */
 	heartbeat_at = k_uptime_get() + HEARTBEAT_INTERVAL_MS;
 	int64_t led_off_at = k_uptime_get() + LED_MS;
-	gpio_pin_set_dt(&blue, 1);
+	gpio_pin_set_dt(&status_led, 1);
 
 	for (;;) {
 		int64_t now = k_uptime_get();
 		if (led_off_at && now >= led_off_at) {
-			gpio_pin_set_dt(&green, 0);
-			gpio_pin_set_dt(&blue, 0);
+			gpio_pin_set_dt(&status_led, 0);
 			led_off_at = 0;
 		}
 		if (advertising && now >= stop_at) {
@@ -220,7 +222,7 @@ int main(void)
 			++diagnostics.heartbeats;
 		} else {
 			led_off_at = k_uptime_get() + LED_MS;
-			gpio_pin_set_dt(&green, 1);
+			gpio_pin_set_dt(&status_led, 1);
 		}
 		diagnostics.last_event = event;
 		++diagnostics.bursts;

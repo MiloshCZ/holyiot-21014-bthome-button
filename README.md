@@ -25,6 +25,12 @@ Remove the battery when powering the board from the programmer. Never connect 5 
 
 The onboard button uses P0.31 (active HIGH). The red, green, and blue LEDs use P0.29, P0.30, and P0.28 (active LOW). See [Zephyr's HOLYIOT board documentation](https://docs.zephyrproject.org/latest/boards/holyiot/holyiot_21014/doc/index.html).
 
+### HOLYIOT 21011 v1.0 compatibility
+
+The project also supports the HOLYIOT 21011 v1.0 with the same nRF52810 and the confirmed pin mapping: button on P0.31 (physical pin 43, active HIGH), and a single active-LOW LED on P0.29 (physical pin 41). Select `LED_COLOR_RED` as shown below. Compatibility is based on the owner-confirmed wiring; runtime testing on this board is still pending.
+
+![HOLYIOT 21011 v1.0 board](docs/images/holyiot-21011-v1.0.jpg)
+
 ## Home Assistant
 
 1. Set up a supported Bluetooth receiver or proxy within range. Reception through Shelly has been tested.
@@ -59,11 +65,19 @@ Battery life and current consumption have not yet been measured. BLE advertising
 
 | File | Settings |
 | --- | --- |
-| [src/app_config.h](src/app_config.h) | Heartbeat interval, advertising duration, debounce, and LED timing |
+| [src/app_config.h](src/app_config.h) | LED color, heartbeat interval, advertising duration, debounce, and LED timing |
 | [src/button_gestures.h](src/button_gestures.h) | Double-click window and hold threshold |
 | [prj.conf](prj.conf) | Bluetooth name, transmit power, and Zephyr options |
 
-At startup, the blue LED flashes and the device advertises for 10 seconds. A green flash indicates a transmitted button event. A brief red flash every 5 seconds indicates an initialization or Bluetooth error.
+Choose the LED in `src/app_config.h` and rebuild:
+
+```c
+#define LED_COLOR LED_COLOR_RED
+```
+
+Use `LED_COLOR_RED` (P0.29, default), `LED_COLOR_GREEN` (P0.30), or `LED_COLOR_BLUE` (P0.28). The 21011 single-LED board uses red. Only the selected GPIO is driven; the same LED signals startup, button events, and errors.
+
+At startup, the selected LED flashes and the device advertises for 10 seconds. An 8 ms flash indicates a transmitted button event. A 20 ms flash every 5 seconds indicates an initialization or Bluetooth error. Heartbeats do not flash the LED.
 
 ## Building and flashing
 
@@ -87,6 +101,12 @@ Before flashing, back up your own device. The flash helper requires `backups/ori
 Run the **Test button gestures** VS Code task to test the production gesture logic and BTHome packet encoding in a Cortex-M4 emulator. The test runner requires the ARM toolchain and the Python packages `pyelftools` and `unicorn`.
 
 ## Changelog
+
+### 2026-09-17 — Selectable LED and HOLYIOT 21011
+
+- Added a selectable status LED color; red is the default for compatibility with single-LED boards.
+- Documented HOLYIOT 21011 v1.0 compatibility and included a board photograph.
+- Unselected LED GPIOs are left unconfigured.
 
 ### 2026-09-17 â€” Battery reporting and power savings
 
