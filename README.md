@@ -96,7 +96,7 @@ Open this folder in VS Code and use **Ctrl+Shift+B** to build, or run:
 
 Build output is copied to `firmware/`. The build script uses a directory junction to avoid spaces in build paths. The **Build and flash BTHome button** task runs both steps.
 
-Before flashing, back up your own device. The flash helper requires `backups/original-flash.bin` and `backups/original-uicr.bin`. These device-specific backups are not part of the public project. Flashing verifies the image by readback before starting it; it does not mass-erase the device, modify UICR, or enable readout protection.
+Flashing verifies the image by readback before starting it; it does not mass-erase the device, modify UICR, or enable readout protection.
 
 ## Tests
 
