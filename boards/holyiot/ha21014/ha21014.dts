@@ -1,0 +1,41 @@
+/dts-v1/;
+#include <nordic/nrf52810_qfaa.dtsi>
+#include <zephyr/dt-bindings/gpio/gpio.h>
+
+/ {
+	model = "HOLYIOT 21014 BTHome Button";
+	compatible = "holyiot,21014";
+	chosen {
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+	};
+	buttons {
+		compatible = "gpio-keys";
+		button0: button_0 {
+			gpios = <&gpio0 31 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
+			label = "Button";
+		};
+	};
+	leds {
+		compatible = "gpio-leds";
+		red: led_red { gpios = <&gpio0 29 GPIO_ACTIVE_LOW>; };
+		green: led_green { gpios = <&gpio0 30 GPIO_ACTIVE_LOW>; };
+		blue: led_blue { gpios = <&gpio0 28 GPIO_ACTIVE_LOW>; };
+	};
+	aliases {
+		sw0 = &button0;
+		led0 = &red;
+		led1 = &green;
+		led2 = &blue;
+	};
+};
+
+&gpio0 {
+	status = "okay";
+	/* Use low-power PORT/SENSE rather than a high-accuracy GPIOTE IN channel. */
+	sense-edge-mask = <0x80000000>;
+};
+&gpiote { status = "okay"; };
+&adc { status = "okay"; };
+/* LDO is safe even on module variants without a DC/DC inductor.
+ * No bootloader, UICR writes, UART or unused peripheral pin assignments. */

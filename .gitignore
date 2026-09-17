@@ -1,0 +1,7 @@
+build/
+*.log
+# Device-specific backups and generated local artifacts are not public sources.
+backups/
+firmware/
+__pycache__/
+TEST_LOG.md

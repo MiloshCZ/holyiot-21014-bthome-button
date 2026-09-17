@@ -1,0 +1,2 @@
+config BOARD_HA21014
+	select SOC_NRF52810_QFAA

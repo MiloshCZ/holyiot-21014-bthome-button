@@ -1,0 +1,5 @@
+{
+  "cmake.configureOnOpen": false,
+  "C_Cpp.default.compileCommands": "${env:USERPROFILE}/.cache/ha-button/build/compile_commands.json",
+  "files.associations": {"*.overlay": "dts", "*.dts": "dts"}
+}

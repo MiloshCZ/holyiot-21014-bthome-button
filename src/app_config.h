@@ -1,0 +1,14 @@
+#ifndef APP_CONFIG_H
+#define APP_CONFIG_H
+
+#include <stdint.h>
+
+#define DEBOUNCE_MS 25
+#define EVENT_ADVERTISING_MS 750
+#define MIN_EVENT_AIRTIME_MS 350
+#define HEARTBEAT_ADVERTISING_MS 1200
+#define HEARTBEAT_INTERVAL_MS (INT64_C(6) * 60 * 60 * 1000)
+#define DISCOVERY_MS 10000
+#define LED_MS 8
+
+#endif

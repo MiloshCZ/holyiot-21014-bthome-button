@@ -1,0 +1,6 @@
+board:
+  name: ha21014
+  full_name: HOLYIOT 21014 BTHome Button
+  vendor: holyiot
+  socs:
+    - name: nrf52810

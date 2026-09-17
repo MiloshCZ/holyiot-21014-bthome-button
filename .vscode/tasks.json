@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Test button gestures",
+      "type": "process",
+      "command": "${env:USERPROFILE}/.cache/ha-button/venv/Scripts/python.exe",
+      "args": ["${workspaceFolder}/tools/test_gestures.py"],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Build BTHome button",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/tools/build.ps1"],
+      "group": {"kind": "build", "isDefault": true},
+      "problemMatcher": "$gcc"
+    },
+    {
+      "label": "Build and flash BTHome button",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/tools/flash.ps1"],
+      "dependsOn": "Build BTHome button",
+      "problemMatcher": []
+    }
+  ]
+}
