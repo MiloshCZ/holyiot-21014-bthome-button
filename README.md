@@ -81,7 +81,32 @@ Use `LED_COLOR_RED` (P0.29), `LED_COLOR_GREEN` (P0.30, default), or `LED_COLOR_B
 
 At startup, the selected LED flashes and the device advertises for 10 seconds. An 8 ms flash indicates a transmitted button event. A 20 ms flash every 5 seconds indicates an initialization or Bluetooth error. Heartbeats do not flash the LED.
 
-## Building and flashing
+## Install the ready-made firmware (Windows)
+
+No compilation, Python, Zephyr SDK, or build environment is needed. The prebuilt firmware supports both boards with the P0.31 button and active-LOW P0.30 status LED (`LED_COLOR_GREEN`), an 8 ms LED pulse, all button gestures, voltage reports, and a 6-hour idle heartbeat.
+
+1. [Download the repository ZIP](https://github.com/MiloshCZ/holyiot-21014-bthome-button/archive/refs/heads/main.zip) and extract it. Keep the `prebuilt` and `tools` folders together.
+2. Install OpenOCD with ST-Link support and its USB driver. The upload script uses `interface/stlink-dap.cfg`, `dapdirect_swd`, and `target/nrf52.cfg`.
+3. Connect ST-Link as shown in **Hardware and wiring**. Remove the battery when supplying power from the programmer.
+4. Open PowerShell in the extracted project folder and run (replace the OpenOCD directory with your installation):
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\upload-firmware.ps1 -OpenOcdDir "C:\Tools\OpenOCD"
+```
+
+The OpenOCD directory must contain `bin/openocd.exe` and `share/openocd/scripts`. If `openocd.exe` is already on PATH and can find its scripts, omit `-OpenOcdDir`.
+
+To check the firmware checksum and OpenOCD configuration without accessing a device:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\upload-firmware.ps1 -OpenOcdDir "C:\Tools\OpenOCD" -CheckOnly
+```
+
+The script checks the SHA256 checksum and chip type, writes the application, verifies the programmed image, and starts it only after successful verification. It defaults to 100 kHz SWD for reliable contact; `-SpeedKhz` can change this. Keep the connections stable until completion. If interrupted, reconnect and rerun the script. Existing application firmware is replaced; the script does not modify UICR or automatically unlock a protected chip.
+
+The published [firmware](prebuilt/ha-button.bin) is built from source, not read from a device. It contains no device-specific MAC address, passwords, or pairing keys. Bluetooth identity comes from the target chip at runtime. The [checksum](prebuilt/SHA256SUMS.txt) detects download corruption; it is not a digital signature. The Bluetooth name remains **HA Button21014** on both board models.
+
+## Building from source
 
 Dependencies: **Zephyr 4.2.0**, **Zephyr SDK 0.17.4** with the ARM toolchain, Python 3.11, west, CMake, Ninja, and OpenOCD for flashing. The required Zephyr modules are `cmsis`, `cmsis_6`, and `hal_nordic`, at the revisions specified by the Zephyr manifest.
 
@@ -103,6 +128,12 @@ Flashing verifies the image by readback before starting it; it does not mass-era
 Run the **Test button gestures** VS Code task to test the production gesture logic and BTHome packet encoding in a Cortex-M4 emulator. The test runner requires the ARM toolchain and the Python packages `pyelftools` and `unicorn`.
 
 ## Changelog
+
+### 2026-09-17 - Ready-made firmware and upload tool
+
+- Published a source-built firmware binary and SHA256 checksum.
+- Added a standalone Windows upload script with checksum, chip-type and flash verification.
+- Documented installation without a firmware build environment.
 
 ### 2026-09-17 - HOLYIOT 21011 hardware verification
 
