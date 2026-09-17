@@ -27,9 +27,9 @@ On the 21014, the onboard button uses P0.31 (active HIGH). The red, green, and b
 
 ### HOLYIOT 21011 v1.0 compatibility
 
-The HOLYIOT 21011 v1.0 has been tested on hardware: the owner confirmed button events in Home Assistant and operation of the onboard LED. Its nRF52810 button uses P0.31 (physical pin 43, active HIGH); the LED uses P0.30 (physical pin 42, active LOW). Select `LED_COLOR_GREEN` (the default). This name refers to the 21014 RGB channel mapping, not the physical color of the 21011 LED.
+The HOLYIOT 21011 v1.0 has been tested on hardware: button events in Home Assistant and onboard LED operation are confirmed. Its nRF52810 button uses P0.31 (physical pin 43, active HIGH); the LED uses P0.30 (physical pin 42, active LOW). Select `LED_COLOR_GREEN` (the default). This name refers to the 21014 RGB channel mapping, not the physical color of the 21011 LED.
 
-The LED pin was verified using a temporary 500 ms pulse; normal firmware uses an 8 ms pulse to reduce consumption. Battery accuracy and current consumption on the 21011 have not been measured.
+The status LED uses an 8 ms pulse to reduce consumption. Battery accuracy and current consumption on the 21011 have not been measured.
 
 ![HOLYIOT 21011 v1.0 board](docs/images/holyiot-21011-v1.0.jpg)
 
@@ -85,7 +85,7 @@ At startup, the selected LED flashes and the device advertises for 10 seconds. A
 
 Dependencies: **Zephyr 4.2.0**, **Zephyr SDK 0.17.4** with the ARM toolchain, Python 3.11, west, CMake, Ninja, and OpenOCD for flashing. The required Zephyr modules are `cmsis`, `cmsis_6`, and `hal_nordic`, at the revisions specified by the Zephyr manifest.
 
-The included Windows helper scripts expect a prepared tool environment under `%USERPROFILE%\.cache\ha-button` and OpenOCD in PlatformIO's `tool-openocd-esp32` package. They are not dependency installers. The project itself builds with Zephyr/west, not PlatformIO.
+The project builds with Zephyr and west. The included Windows helper scripts expect a prepared tool environment under `%USERPROFILE%\.cache\ha-button`; they do not install dependencies. Before using the flash task, set `$openocdDir` in [tools/flash.ps1](tools/flash.ps1) to your OpenOCD installation directory, containing `bin/openocd.exe` and `share/openocd/scripts`.
 
 Open this folder in VS Code and use **Ctrl+Shift+B** to build, or run:
 
@@ -112,7 +112,7 @@ Run the **Test button gestures** VS Code task to test the production gesture log
 
 ### 2026-09-17 - Selectable LED and HOLYIOT 21011
 
-- Added a selectable status LED color; red was the initial default, superseded by the tested P0.30 mapping.
+- Added a selectable status LED color.
 - Documented HOLYIOT 21011 v1.0 compatibility and included a board photograph.
 - Unselected LED GPIOs are left unconfigured.
 
