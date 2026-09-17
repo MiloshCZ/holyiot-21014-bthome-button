@@ -4,15 +4,16 @@
 #include <stdint.h>
 
 /* HOLYIOT 21011 v1.0 is compatible with the confirmed nRF52810 wiring:
- * button P0.31 (package pin 43), active HIGH; red LED P0.29 (pin 41),
- * active LOW. Use red for its single LED. 21014 also supports green/blue.
+ * button P0.31 (package pin 43), active HIGH; status LED P0.30 (pin 42),
+ * active LOW, tested on hardware. Use LED_COLOR_GREEN for its single LED.
+ * Color names refer to the 21014 RGB channels, not the 21011 LED color.
  * Only the selected LED GPIO is configured and driven.
  */
 #define LED_COLOR_RED 0
 #define LED_COLOR_GREEN 1
 #define LED_COLOR_BLUE 2
 #ifndef LED_COLOR
-#define LED_COLOR LED_COLOR_RED
+#define LED_COLOR LED_COLOR_GREEN
 #endif
 
 #define DEBOUNCE_MS 25

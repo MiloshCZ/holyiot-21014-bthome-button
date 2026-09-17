@@ -1,6 +1,6 @@
 # HA Button
 
-Battery-powered Bluetooth button firmware for the **HOLYIOT 21014 v1.0** (nRF52810), built with Zephyr and designed for Home Assistant through [BTHome](https://bthome.io/).
+Battery-powered Bluetooth button firmware for the **HOLYIOT 21014 v1.0 and 21011 v1.0** (nRF52810), built with Zephyr and designed for Home Assistant through [BTHome](https://bthome.io/).
 
 ## Features
 
@@ -12,7 +12,7 @@ Battery-powered Bluetooth button firmware for the **HOLYIOT 21014 v1.0** (nRF528
 
 ## Hardware and wiring
 
-You need a HOLYIOT 21014 board, a CR2032 battery, and an SWD programmer. ST-Link V2 with OpenOCD has been tested.
+You need a HOLYIOT 21014 or 21011 board, a CR2032 battery, and an SWD programmer. ST-Link V2 with OpenOCD has been tested.
 
 | Programmer | HOLYIOT |
 | --- | --- |
@@ -23,11 +23,13 @@ You need a HOLYIOT 21014 board, a CR2032 battery, and an SWD programmer. ST-Link
 
 Remove the battery when powering the board from the programmer. Never connect 5 V to VDD. A programmer's voltage-reference input is not a power output.
 
-The onboard button uses P0.31 (active HIGH). The red, green, and blue LEDs use P0.29, P0.30, and P0.28 (active LOW). See [Zephyr's HOLYIOT board documentation](https://docs.zephyrproject.org/latest/boards/holyiot/holyiot_21014/doc/index.html).
+On the 21014, the onboard button uses P0.31 (active HIGH). The red, green, and blue LEDs use P0.29, P0.30, and P0.28 (active LOW). See [Zephyr's HOLYIOT board documentation](https://docs.zephyrproject.org/latest/boards/holyiot/holyiot_21014/doc/index.html).
 
 ### HOLYIOT 21011 v1.0 compatibility
 
-The project also supports the HOLYIOT 21011 v1.0 with the same nRF52810 and the confirmed pin mapping: button on P0.31 (physical pin 43, active HIGH), and a single active-LOW LED on P0.29 (physical pin 41). Select `LED_COLOR_RED` as shown below. Compatibility is based on the owner-confirmed wiring; runtime testing on this board is still pending.
+The HOLYIOT 21011 v1.0 has been tested on hardware: the owner confirmed button events in Home Assistant and operation of the onboard LED. Its nRF52810 button uses P0.31 (physical pin 43, active HIGH); the LED uses P0.30 (physical pin 42, active LOW). Select `LED_COLOR_GREEN` (the default). This name refers to the 21014 RGB channel mapping, not the physical color of the 21011 LED.
+
+The LED pin was verified using a temporary 500 ms pulse; normal firmware uses an 8 ms pulse to reduce consumption. Battery accuracy and current consumption on the 21011 have not been measured.
 
 ![HOLYIOT 21011 v1.0 board](docs/images/holyiot-21011-v1.0.jpg)
 
@@ -72,10 +74,10 @@ Battery life and current consumption have not yet been measured. BLE advertising
 Choose the LED in `src/app_config.h` and rebuild:
 
 ```c
-#define LED_COLOR LED_COLOR_RED
+#define LED_COLOR LED_COLOR_GREEN
 ```
 
-Use `LED_COLOR_RED` (P0.29, default), `LED_COLOR_GREEN` (P0.30), or `LED_COLOR_BLUE` (P0.28). The 21011 single-LED board uses red. Only the selected GPIO is driven; the same LED signals startup, button events, and errors.
+Use `LED_COLOR_RED` (P0.29), `LED_COLOR_GREEN` (P0.30, default), or `LED_COLOR_BLUE` (P0.28). The 21011 single-LED board uses `LED_COLOR_GREEN`. Only the selected GPIO is driven; the same LED signals startup, button events, and errors.
 
 At startup, the selected LED flashes and the device advertises for 10 seconds. An 8 ms flash indicates a transmitted button event. A 20 ms flash every 5 seconds indicates an initialization or Bluetooth error. Heartbeats do not flash the LED.
 
@@ -102,9 +104,15 @@ Run the **Test button gestures** VS Code task to test the production gesture log
 
 ## Changelog
 
-### 2026-09-17 — Selectable LED and HOLYIOT 21011
+### 2026-09-17 - HOLYIOT 21011 hardware verification
 
-- Added a selectable status LED color; red is the default for compatibility with single-LED boards.
+- Confirmed Home Assistant button events and LED operation on HOLYIOT 21011 v1.0.
+- Corrected its LED mapping to P0.30 (physical pin 42), active LOW; made `LED_COLOR_GREEN` the default.
+- Restored the 8 ms LED pulse after the 500 ms diagnostic test.
+
+### 2026-09-17 - Selectable LED and HOLYIOT 21011
+
+- Added a selectable status LED color; red was the initial default, superseded by the tested P0.30 mapping.
 - Documented HOLYIOT 21011 v1.0 compatibility and included a board photograph.
 - Unselected LED GPIOs are left unconfigured.
 
